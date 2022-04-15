@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://fonts/montreal/Montreal.tres" type="DynamicFont" id=1]
+
+[node name="ActionMenu" type="MarginContainer"]
+margin_right = 175.0
+margin_bottom = 100.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+margin_right = 175.0
+margin_bottom = 100.0
+
+[node name="Attack" type="Button" parent="VBoxContainer"]
+margin_right = 175.0
+margin_bottom = 22.0
+custom_fonts/font = ExtResource( 1 )
+text = "Attack"
+
+[node name="Move" type="Button" parent="VBoxContainer"]
+margin_top = 26.0
+margin_right = 175.0
+margin_bottom = 48.0
+custom_fonts/font = ExtResource( 1 )
+text = "Move"
+
+[node name="Item" type="Button" parent="VBoxContainer"]
+margin_top = 52.0
+margin_right = 175.0
+margin_bottom = 74.0
+custom_fonts/font = ExtResource( 1 )
+text = "Item"
