@@ -38,6 +38,12 @@ func _ready():
 	print("Starting " + char_name + "'s timer")
 	$ActionTimer.connect('timeout', get_parent(), '_on_action_timer_timeout', [char_name, side, array_index])
 	$ActionTimer.start()
+	
+	if(status == state.ALIVE):
+		$AnimatedSprite.animation=="standing"
+	else:
+		$AnimatedSprite.animation=="dead"
+	
 	show()
 
 
@@ -68,6 +74,12 @@ func _is_hit(damage):
 	
 	emit_signal("is_hit", hp)
 
+func is_targeted():
+	$AnimatedSprite.animation = "targeted"
+
+func is_not_targeted():
+	$AnimatedSprite.animation = "standing"
+
 func action_time_left()->float:
 	return $ActionTimer.time_left
 
@@ -81,6 +93,9 @@ func dies():
 	stop_action_timer()
 	emit_signal("is_dead", side)
 
+func get_status()-> int:
+	return status
+
 func pause_action_timer():
 	stop_action_timer()
 
@@ -89,6 +104,13 @@ func start_action_timer():
 
 func stop_action_timer():
 	$ActionTimer.stop()
+
+func toggle_focus():
+	print(char_name + ".toggle_focus(): $AnimatedSprint.animation==" + $AnimatedSprite.animation)
+	if($AnimatedSprite.animation == "standing"):
+		$AnimatedSprite.animation = "targeted"
+	else:
+		$AnimatedSprite.animation = "standing"
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):

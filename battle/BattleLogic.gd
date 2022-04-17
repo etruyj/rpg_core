@@ -12,7 +12,7 @@ var target_list
 #func _ready():
 #	pass # Replace with function body.
 
-static func find_target(actor, target_list):
+static func auto_find_target(actor, target_list):
 	if(actor.side == team.PLAYER):
 		for x in target_list[team.NPC].size():
 			if (target_list[team.NPC][x].status == state.ALIVE):
@@ -22,6 +22,8 @@ static func find_target(actor, target_list):
 		for x in target_list[team.PLAYER].size():
 			if (target_list[team.PLAYER][x].status == state.ALIVE):
 				return [team.PLAYER, x]
+
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):

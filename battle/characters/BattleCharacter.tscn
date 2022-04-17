@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://battle/characters/BattleCharacter.gd" type="Script" id=1]
 [ext_resource path="res://battle/characters/temp_sprite.png" type="Texture" id=2]
 [ext_resource path="res://battle/characters/temp_sprite_dead.png" type="Texture" id=3]
+[ext_resource path="res://battle/characters/temp_sprite_focused.png" type="Texture" id=4]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
@@ -14,6 +15,11 @@ animations = [ {
 "frames": [ ExtResource( 3 ) ],
 "loop": true,
 "name": "dead",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 4 ) ],
+"loop": true,
+"name": "targeted",
 "speed": 5.0
 } ]
 
