@@ -2,8 +2,10 @@ extends Node2D
 
 signal is_dead
 signal is_hit
+signal is_turn
 signal _revived
 signal timer_value
+signal turn_over
 
 enum state {ALIVE, DEAD}
 enum team {PLAYER, ENEMY}
@@ -91,7 +93,10 @@ func dies():
 	print(char_name + " dies")
 	status = state.DEAD
 	stop_action_timer()
-	emit_signal("is_dead", side)
+	emit_signal("is_dead", side, array_index)
+
+func end_Turn():
+	emit_signal("turn_over")
 
 func get_status()-> int:
 	return status
@@ -99,11 +104,14 @@ func get_status()-> int:
 func pause_action_timer():
 	stop_action_timer()
 
-func start_action_timer():
+func start_Action_Timer():
 	$ActionTimer.start()
 
 func stop_action_timer():
 	$ActionTimer.stop()
+
+func start_Turn():
+	emit_signal("is_turn")
 
 func toggle_focus():
 	print(char_name + ".toggle_focus(): $AnimatedSprint.animation==" + $AnimatedSprite.animation)

@@ -34,6 +34,8 @@ func select_Target(target, target_list, direction):
 func find_target(last_target, target_list):
 	var target = last_target
 	
+	select_Target(last_target, target_list, "up")
+	
 	if(Input.is_action_just_pressed("move_right") || Input.is_action_just_released("move_left")):
 		target_list[last_target[0]][last_target[1]].is_not_targeted()
 		if(target[0] == 0):
@@ -63,6 +65,7 @@ func find_target(last_target, target_list):
 		select_Target(target, target_list, "down")
 	
 	if(Input.is_action_just_pressed("make_selection")):
+		print("target[" + str(target[0]) + "][" + str(target[1]) +"] selected")
 		emit_signal("target_selected")
 	
 	if(Input.is_action_just_pressed("cancel_selection")):

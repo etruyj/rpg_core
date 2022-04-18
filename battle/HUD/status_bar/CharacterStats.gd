@@ -10,7 +10,11 @@ var display_name
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	_remove_Highlight()
 	show()
+
+func _highlight_Bar():
+	$Highlight.show()
 
 func load_values(name, health, max_health, ap_bar, ap_bar_max):
 	display_name = name
@@ -25,6 +29,9 @@ func load_values(name, health, max_health, ap_bar, ap_bar_max):
 	_update_hp(hp)
 	_update_action_bar(action_bar)
 	
+
+func _remove_Highlight():
+	$Highlight.hide()
 
 func _update_hp(new_hp):
 	$HBoxContainer/ProgressBars/HPInfo/HBoxContainer/HP.text = str(new_hp) + "/" + str(hp_max)

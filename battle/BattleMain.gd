@@ -49,9 +49,12 @@ func _ready():
 	fighting = true # battle is active
 	player_target.append(team.NPC)
 	player_target.append(0)
+	
+	# Connectors
 	$HUD/ActionMenu/MenuList/Attack.connect("pressed", self, "_action_selected")
 	$HUD/ActionMenu/MenuList/Item.connect("pressed", self, "_action_selected")
 	PlayerOptions.connect("return_to_menu", self, "_escape_target_selection")
+	PlayerOptions.connect("target_selected", self, "_target_selected")
 	
 	#============================================
 	# Generation of blank characters for testing.
@@ -77,6 +80,8 @@ func _ready():
 				stats_bar.load_values(combatant.char_name, combatant.hp, combatant.max_hp, combatant.action_time_left(), combatant.action_time_wait())
 				combatant.connect("is_hit", stats_bar, "_update_hp")
 				combatant.connect("timer_value", stats_bar, "_update_action_bar")
+				combatant.connect("is_turn", stats_bar, "_highlight_Bar")
+				combatant.connect("turn_over", stats_bar, "_remove_Highlight")
 				$HUD/StatsBar/HBoxContainer/VBoxContainer.add_child(stats_bar)
 				#if(y==0):
 				#	$StatsBar/HBoxContainer/VBoxContainer/Party_0.load_values(combatant.char_name, combatant.hp, combatant.max_hp, combatant.action_time_left(), combatant.action_time_wait())
@@ -101,12 +106,13 @@ func _battle_over():
 		for y in combatants_list[x].size():
 			combatants_list[x][y].stop_action_timer()
 
-func _on_action_timer_timeout(character, action_queue, index):
-	if action_queue == team.PLAYER:
-		player_action_queue.append(index)
+func _on_action_timer_timeout(character, side, spot):
+	combatants_list[side][spot].pause_action_timer()
+	if side == team.PLAYER:
+		player_action_queue.append(spot)
 		print("added " + character + " to the player action queue")
 	else:
-		npc_action_queue.append(index)
+		npc_action_queue.append(spot)
 		print("added " + character + " to the NPC action queue")
 
 func _action_selected(choice):
@@ -114,11 +120,33 @@ func _action_selected(choice):
 	player_choice = choice
 	selecting_target = true
 
+func clear_Action_Queues(side, spot):
+	if(side == team.PLAYER):
+		for x in player_action_queue.size():
+			if(player_action_queue[x] == spot):
+				player_action_queue.remove(x)
+	else:
+		for x in npc_action_queue.size():
+			if(npc_action_queue[x] == spot):
+				npc_action_queue.remove(x)
+	
+	for x in execution_queue.size():
+		if(execution_queue[x].actor[0] == side && execution_queue[x].actor[1] == spot):
+			execution_queue.remove(x)
+
 func _escape_target_selection():
 	selecting_target = false
 	$HUD/ActionMenu.show_menu()
 
-func _someone_dies(side):
+func highlight_UI(side, spot):
+	combatants_list[side][spot].start_Turn()
+
+func remove_Highlight_UI(side, spot):
+	combatants_list[side][spot].end_Turn()
+
+func _someone_dies(side, spot):
+	clear_Action_Queues(side, spot)
+	
 	if(side == team.PLAYER):
 		living_characters[team.PLAYER] -= 1
 	else:
@@ -136,7 +164,7 @@ func _target_selected():
 	action_ready = true
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	# Process the player and npc action queues as
 	# well as the execution queue.
 	
@@ -145,22 +173,20 @@ func _process(delta):
 
 	if(fighting):
 		if(player_action_queue.size() > 0):
-			combatants_list[team.PLAYER][player_action_queue[0]].pause_action_timer()
-			
 			if(!selecting_target && !action_ready):
+				highlight_UI(team.PLAYER, player_action_queue[0])
 				$HUD/ActionMenu.show_menu()
 			elif(!action_ready):
-				combatants_list[player_target[0]][player_target[1]].is_targeted()
 				player_target = PlayerOptions.find_target(player_target, combatants_list)
 			else:
 				print("Queuing action for " + combatants_list[team.PLAYER][player_action_queue[0]].char_name)
 				player_choice = BattleAction.new(team.PLAYER, player_action_queue[0], player_target[0], player_target[1], player_choice)
 				execution_queue.append(player_choice)
 				player_action_queue.remove(0)
+				action_ready = false
 			#$ActionMenu.selection_made()
 		
 		if(npc_action_queue.size() > 0):
-			combatants_list[team.NPC][npc_action_queue[0]].pause_action_timer()
 			print("Queuing action for " + combatants_list[team.NPC][npc_action_queue[0]].char_name)
 			npc_target = BattleLogic.auto_find_target(combatants_list[team.NPC][npc_action_queue[0]], combatants_list)
 			npc_choice = BattleAction.new(team.NPC, npc_action_queue[0], npc_target[0], npc_target[1], action.ATTACK)
@@ -175,5 +201,6 @@ func _process(delta):
 			else:
 				print("Action: " + combatants_list[execution_queue[0].actor[0]][execution_queue[0].actor[1]].char_name 
 					+ " misses " + combatants_list[execution_queue[0].target[0]][execution_queue[0].target[1]].char_name)
-			combatants_list[execution_queue[0].actor[0]][execution_queue[0].actor[1]].start_action_timer()
+			remove_Highlight_UI(execution_queue[0].actor[0], execution_queue[0].actor[1])
+			combatants_list[execution_queue[0].actor[0]][execution_queue[0].actor[1]].start_Action_Timer()
 			execution_queue.remove(0)
